@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Calculator</title>
+    <style>
+        *, *::after, *::before {
+    box-sizing: border-box;
+    }
+
+    body{
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+    }
+
+    .calculator {
+        margin: 0 auto;
+        padding: 10px;
+        box-shadow: 5px 5px 30px 5px dimgray inset;
+        border-radius: 10px;
+        /* border: 1px solid green; */
+        display: flex;
+        flex-direction: column;
+        min-width: 50%;
+        max-width: 600px;
+    }
+    .calculator-screen {
+        border: none;
+        height: 50px;
+        border-radius: 5px;
+        background-color: darkslategrey;
+        color: ghostwhite;
+        padding: 5px 10px 5px 5px;
+        margin-bottom: 5px;
+        font-size: 1.2rem;
+        text-align: right;
+        width: 100%;
+    }
+
+    .calculator-keys {
+        padding-top: 10px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+        gap: 20px 10px;
+    }
+    button {
+        padding: 10px 20px;
+        font-weight: 700;
+        font-size: 1.15rem;
+        border: none;
+        border-radius: 5px;
+        background-color: rgba(85, 73, 168, 0.459);
+        color: ivory;
+    }
+    button:hover{
+        background-color: rgba(85, 73, 168);
+    }
+    .operator {
+        background-color: rgb(211, 43, 43);
+    }
+    .operator:hover {
+        background-color: rgb(211, 43, 43, 0.651);
+    }
+    .equalsTo {
+        background-color: indigo;
+        grid-area: 5 / 1 / 5 / span 4;
+    }
+    .equalsTo:hover {
+        background-color: rgba(76, 0, 130, 0.651);
+    }
+    .all-clear {
+        background-color: orangered;
+        font-size: 0.8rem;
+    }
+    .all-clear:hover {
+        background-color: rgba(255, 68, 0, 0.651);
+    }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <input type="text" class="calculator-screen" id="calc-scr" value="" disabled>
+
+        <div class="calculator-keys">
+            <button type="button" class="seven" value="7">7</button>
+            <button type="button" class="eight" value="8">8</button>
+            <button type="button" class="nine" value="9">9</button>
+            <button type="button" class="operator" value="/">&divide;</button>
+
+            <button type="button" class="four" value="4">4</button>
+            <button type="button" class="five" value="5">5</button>
+            <button type="button" class="six" value="6">6</button>
+            <button type="button" class="operator" value="*">&times;</button>
+
+            <button type="button" class="one" value="1">1</button>
+            <button type="button" class="two" value="2">2</button>
+            <button type="button" class="three" value="3">3</button>
+            <button type="button" class="operator" value="-">-</button>
+
+            <button type="button" class="zero" value="0">0</button>
+            <button type="button" class="decimal" value=".">.</button>
+            <button type="button" class="all-clear" value="all-clear">AC</button>
+            <button type="button" class="operator" value="+">+</button>
+
+            <button type="button" class="equalsTo operator" value="=">=</button>
+        </div>
+    </div>
+
+
+    <script>
+        const calculator = {
+    screenDisplay: '0',                 //Holds the value for what is shown on the screen
+    firstNum: null,                     //Stores the first operand of any expression
+    waitingForSecondNum: false,         //Checks if first operand and operator has been inputed
+    operator: null                      //Stores the operator for an expression.
+    };
+
+    function displayToScreen() {
+        const UIdisplay = document.getElementById("calc-scr");        //Access the calculator screen
+        UIdisplay.value = calculator.screenDisplay;                   //Update the content of the element with value of screenDisplay
+    }
+
+    displayToScreen();
+
+    let keys = document.querySelector(".calculator-keys");              //Access the parent holding all calculator keys
+    keys.addEventListener('click', (Event) => {
+        const point = Event.target;                          //Access the exact element that is clicked
+        if (!point.matches('button')) {                      //If the target isn't a button, exit the function
+            return;
+        };
+        if (point.classList.contains('operator')) {     //What happens when an operator is clicked
+            inputOperator(point.value);
+            displayToScreen();
+            return;
+        };
+        if (point.classList.contains('decimal')) {      //What happens when a decimal point is clicked
+            inputDecimal(point.value);
+            displayToScreen();
+            return;
+        };
+        if (point.classList.contains('all-clear')) {    //What happens when the all-clear button is clicked
+            calcReset();
+            displayToScreen();
+            return;
+        }
+        inputNum(point.value);          //Add a new number to calculator object screenDisplay property
+        displayToScreen();
+    });
+
+
+    function inputOperator(arg) {
+        let { firstNum, waitingForSecondNum, operator, screenDisplay } = calculator;       //Access all the required properties of the calculator Object
+        const floatValue = parseFloat(screenDisplay);                                      //Convert the contents of screenDisplay into a floating point number in order to handle decimal point occurence
+
+        if (operator && waitingForSecondNum) {          //Check if operator has been assigned prior 
+            calculator.operator = arg;                  //Update calculator.operator with new operator
+            console.log(calculator);
+            return;
+        };
+
+        if (firstNum === null && !isNaN(floatValue)) {                  //If firstNum hasn't been inputed at all and the processed float isn't a NaN value
+            calculator.firstNum = floatValue;
+        } else if (operator) {
+            const result = solve(firstNum, floatValue, operator);       //Perform Arithemetic
+
+            calculator.screenDisplay = parseFloat(result.toFixed(6));          //Output result to screen.
+            calculator.firstNum = result;                                      //Update value of firstNum property in calculator object.
+        };
+
+        calculator.waitingForSecondNum = true;
+        calculator.operator = arg;
+        
+        // console.log(calculator);
+    };
+
+
+    function solve(Num1, Num2, opt) {       //Handling all arithemetic functions
+        if (opt === '+') {
+            return Num1 + Num2;
+        }else if (opt === '-') {
+            return Num1 - Num2;
+        }else if (opt === '*') {
+            return Num1 * Num2;
+        }else if (opt === '/') {
+            return Num1 / Num2;
+        }
+        return Num2;
+    };
+
+    
+    function calcReset(){
+        calculator.screenDisplay = '0';
+        calculator.firstNum = null;
+        calculator.waitingForSecondNum = false;
+        calculator.operator = null;
+        
+        // console.log(calculator);
+    };
+
+    function inputNum(number) {
+        let { screenDisplay, waitingForSecondNum } = calculator;            //Using the calculator object property within the function scope
+
+        if (waitingForSecondNum === true) {             //If an operator has been inputed already proceed with code block
+            calculator.screenDisplay = number;          //Override screen display with new set of digits
+            calculator.waitingForSecondNum = false;
+        } else {
+            calculator.screenDisplay = screenDisplay === '0' ? number : screenDisplay + number;         //Override presiding zero or concatenate screen value with button value
+        }
+        // console.log(calculator);
+    };
+
+    function inputDecimal(arg) {
+        let { screenDisplay, waitingForSecondNum } = calculator;         //Destructure the calculator object to assess the relevant properties
+        
+        if (waitingForSecondNum === true) {             //If an operator has been inputed already proceed with code block
+            calculator.screenDisplay = '0.';          //Override screen display with new set of digits
+            calculator.waitingForSecondNum = false;
+            return;
+        }
+
+        if (!calculator.screenDisplay.includes(arg)) {      //If there is no pre-existing decimal point
+            calculator.screenDisplay += arg;                //Attach a decimal point
+        };
+    };
+
+    </script>
+</body>
+</html>
