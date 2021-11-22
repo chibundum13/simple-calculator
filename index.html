@@ -79,9 +79,22 @@
     .all-clear:hover {
         background-color: rgba(255, 68, 0, 0.651);
     }
+        .header{
+            background-color: blue;
+            color: white;
+            display: flex;
+            width: 100%;
+            margin-bottom: 30px;
+        }
     </style>
 </head>
 <body>
+    <div class="header">
+        <div style="display: flex; flex-direction: coloumn;">
+            <h1>Simple calculator</h1>
+            <small>Performs basic arithmetic operations (+ , - , x , ÷)</small>
+        </div>
+    </div>
     <div class="calculator">
         <input type="text" class="calculator-screen" id="calc-scr" value="" disabled>
 
@@ -109,7 +122,10 @@
             <button type="button" class="equalsTo operator" value="=">=</button>
         </div>
     </div>
-
+    <div style="margin-top: 70px;">
+        <h2>Credits</h2>
+        <p>All thanks to <a href="https://github.com/ayoisaiah">Ayo Isiah</a>, this application is a subtle replica of <a href="https://freshman.tech/calculator/">Freshman's</a> JS calculator.
+    </div>
 
     <script>
         const calculator = {
@@ -231,8 +247,4 @@
 </body>
 </html>
 
-# Simple calculator
-Performs basic arithmetic operations (+ , - , x , ÷)
 
-## Credits
-All thanks to [Ayo Isiah](https://github.com/ayoisaiah), this application is a subtle replica of [Freshman's](https://freshman.tech/calculator/) JS calculator.
